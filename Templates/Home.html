@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spam Message Detector</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #0f0c29;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 40px 20px;
+            position: relative;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+            top: -200px;
+            left: -200px;
+            animation: pulse 8s ease-in-out infinite;
+        }
+
+        body::after {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.3) 0%, transparent 70%);
+            bottom: -150px;
+            right: -150px;
+            animation: pulse 8s ease-in-out infinite 2s;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.3; }
+            50% { transform: scale(1.2); opacity: 0.5; }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5),
+                        0 0 100px rgba(139, 92, 246, 0.1);
+            max-width: 900px;
+            width: 100%;
+            padding: 60px;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease-out;
+            margin: auto;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .glow-line {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 2px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                rgba(139, 92, 246, 0.8) 50%, 
+                transparent 100%);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 30px;
+            animation: fadeIn 0.8s ease-out, float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .logo {
+            filter: drop-shadow(0 0 30px rgba(139, 92, 246, 0.5));
+            transition: transform 0.3s ease;
+        }
+
+        .logo:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        h1 {
+            background: linear-gradient(135deg, #a78bfa 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 3em;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: 800;
+            letter-spacing: -1px;
+            animation: gradientShift 6s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(20deg); }
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.7);
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 1.2em;
+            font-weight: 300;
+            letter-spacing: 0.5px;
+        }
+
+        .section {
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out backwards;
+        }
+
+        .section:nth-child(2) { animation-delay: 0.2s; }
+        .section:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            color: #ffffff;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        h2::before {
+            content: '';
+            width: 4px;
+            height: 30px;
+            background: linear-gradient(180deg, #8b5cf6 0%, #ec4899 100%);
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+
+        p {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.9;
+            margin-bottom: 15px;
+            font-size: 1.05em;
+        }
+
+        .instructions {
+            background: linear-gradient(135deg, 
+                rgba(139, 92, 246, 0.1) 0%, 
+                rgba(59, 130, 246, 0.1) 100%);
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .instructions::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(139, 92, 246, 0.1) 50%, 
+                transparent 70%);
+            animation: rotate 8s linear infinite;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        .instructions ol {
+            margin-left: 20px;
+            color: rgba(255, 255, 255, 0.9);
+            position: relative;
+            z-index: 1;
+        }
+
+        .instructions li {
+            margin-bottom: 15px;
+            line-height: 1.8;
+            padding-left: 10px;
+        }
+
+        .instructions li::marker {
+            color: #8b5cf6;
+            font-weight: bold;
+        }
+
+        .note {
+            background: linear-gradient(135deg, 
+                rgba(251, 191, 36, 0.15) 0%, 
+                rgba(245, 158, 11, 0.15) 100%);
+            border: 1px solid rgba(251, 191, 36, 0.4);
+            border-left: 4px solid #fbbf24;
+            padding: 18px;
+            border-radius: 12px;
+            margin-top: 20px;
+            color: #fde68a;
+            font-size: 0.95em;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.1);
+        }
+
+        .btn-container {
+            text-align: center;
+            margin: 50px 0;
+            animation: fadeIn 1s ease-out 0.6s backwards;
+        }
+
+        .predict-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            padding: 20px 60px;
+            font-size: 1.3em;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 15px 40px rgba(139, 92, 246, 0.4),
+                        0 0 60px rgba(236, 72, 153, 0.2);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .predict-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .predict-btn:hover::before {
+            width: 400px;
+            height: 400px;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 60px rgba(139, 92, 246, 0.6),
+                        0 0 100px rgba(236, 72, 153, 0.4);
+        }
+
+        .predict-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .predict-btn span {
+            position: relative;
+            z-index: 1;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding-top: 35px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.95em;
+            animation: fadeIn 1s ease-out 0.8s backwards;
+        }
+
+        .feature-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(236, 72, 153, 0.2));
+            border: 1px solid rgba(139, 92, 246, 0.4);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #d8b4fe;
+            margin-top: 10px;
+            display: inline-block;
+        }
+
+        .feature-badge::before {
+            content: '⚡';
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 25px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+
+            .predict-btn {
+                padding: 16px 45px;
+                font-size: 1.1em;
+            }
+
+            body::before,
+            body::after {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="glow-line"></div>
+        
+        <div class="logo-container">
+            <svg class="logo" viewBox="0 0 100 100" width="120" height="120">
+                <defs>
+                    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#ec4899;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                
+                <!-- Shield Shape -->
+                <path d="M50 10 L80 25 L80 55 Q80 75 50 90 Q20 75 20 55 L20 25 Z" 
+                      fill="url(#logoGradient)" 
+                      filter="url(#glow)"
+                      opacity="0.9"/>
+                
+                <!-- Check Mark -->
+                <path d="M35 50 L45 60 L65 35" 
+                      stroke="white" 
+                      stroke-width="6" 
+                      stroke-linecap="round" 
+                      stroke-linejoin="round"
+                      fill="none"
+                      filter="url(#glow)"/>
+                
+                <!-- Decorative Circle -->
+                <circle cx="50" cy="50" r="35" 
+                        fill="none" 
+                        stroke="url(#logoGradient)" 
+                        stroke-width="2" 
+                        opacity="0.4"
+                        stroke-dasharray="5,5">
+                    <animateTransform
+                        attributeName="transform"
+                        type="rotate"
+                        from="0 50 50"
+                        to="360 50 50"
+                        dur="20s"
+                        repeatCount="indefinite"/>
+                </circle>
+            </svg>
+        </div>
+        
+        <h1>Welcome to the Spam Message Detector</h1>
+        <p class="subtitle">A simple and smart tool to classify your messages as Spam or Not Spam.</p>
+
+        <div class="section">
+            <h2>About Us</h2>
+            <p>This project is built using Machine Learning to help users easily detect unwanted or harmful spam messages. The system uses a trained Naive Bayes model to analyze text and classify messages with high accuracy. Our goal is to provide a simple, fast, and effective spam detection experience.</p>
+            <span class="feature-badge">Powered by AI</span>
+        </div>
+
+        <div class="section">
+            <h2>Instructions</h2>
+            <div class="instructions">
+                <ol>
+                    <li>Click the "Predict Spam Message" button below.</li>
+                    <li>You will be taken to the prediction page.</li>
+                    <li>Enter any message you want to analyze.</li>
+                    <li>Click "Check" to see if the message is Spam or Not Spam.</li>
+                </ol>
+                <div class="note">
+                    Make sure your model and vectorizer files are loaded correctly in the backend.
+                </div>
+            </div>
+        </div>
+
+        <div class="btn-container">
+            <a href="/predict_page" style="text-decoration: none;">
+                <button class="predict-btn">
+                    <span>Predict Spam Message</span>
+                </button>
+            </a>
+        </div>
+
+        <footer>
+            © 2025 Spam Detector | Created using Python & Machine Learning
+        </footer>
+    </div>
+</body>
+</html>
